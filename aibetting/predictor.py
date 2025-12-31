@@ -6,14 +6,32 @@ from sklearn.ensemble import RandomForestClassifier
 from typing import List, Tuple
 from aibetting.models import Match, Prediction
 
+# Constants
+MIN_TRAINING_SAMPLES = 5
+DEFAULT_N_ESTIMATORS = 100
+DEFAULT_MAX_DEPTH = 10
+RANDOM_STATE = 42
+
 
 class BettingPredictor:
     """
     AI-powered betting predictor using machine learning
     """
     
-    def __init__(self):
-        """Initialize the betting predictor"""
+    def __init__(self, n_estimators: int = DEFAULT_N_ESTIMATORS, 
+                 max_depth: int = DEFAULT_MAX_DEPTH,
+                 random_state: int = RANDOM_STATE):
+        """
+        Initialize the betting predictor
+        
+        Args:
+            n_estimators: Number of trees in random forest (default: 100)
+            max_depth: Maximum depth of trees (default: 10)
+            random_state: Random state for reproducibility (default: 42)
+        """
+        self.n_estimators = n_estimators
+        self.max_depth = max_depth
+        self.random_state = random_state
         self.model = None
         self.is_trained = False
     
@@ -66,17 +84,17 @@ class BettingPredictor:
             else:
                 y.append(1)
         
-        if len(X) < 5:
-            raise ValueError("Need at least 5 matches with results for training")
+        if len(X) < MIN_TRAINING_SAMPLES:
+            raise ValueError(f"Need at least {MIN_TRAINING_SAMPLES} matches with results for training")
         
         X = np.array(X)
         y = np.array(y)
         
         # Train random forest classifier
         self.model = RandomForestClassifier(
-            n_estimators=100,
-            max_depth=10,
-            random_state=42
+            n_estimators=self.n_estimators,
+            max_depth=self.max_depth,
+            random_state=self.random_state
         )
         self.model.fit(X, y)
         self.is_trained = True

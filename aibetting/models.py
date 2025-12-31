@@ -5,6 +5,9 @@ from dataclasses import dataclass
 from typing import Optional
 from datetime import datetime
 
+# Constants
+PROBABILITY_TOLERANCE = 0.01
+
 
 @dataclass
 class Match:
@@ -46,7 +49,9 @@ class Prediction:
     def __post_init__(self):
         """Validate prediction data"""
         total_prob = self.home_win_probability + self.away_win_probability + self.draw_probability
-        if not (0.99 <= total_prob <= 1.01):  # Allow small floating point errors
+        min_prob = 1.0 - PROBABILITY_TOLERANCE
+        max_prob = 1.0 + PROBABILITY_TOLERANCE
+        if not (min_prob <= total_prob <= max_prob):  # Allow small floating point errors
             raise ValueError(f"Probabilities must sum to 1.0, got {total_prob}")
         
         if self.confidence < 0 or self.confidence > 1:
